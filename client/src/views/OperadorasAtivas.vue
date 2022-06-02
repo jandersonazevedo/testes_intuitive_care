@@ -1,7 +1,7 @@
 <template>
   <div class="OperadorasAtivas">
     <div class="container-list">
-      <Table title="Relação de Operadoras Ativas ANS" />
+      <Table/>
     </div>
   </div>
 </template>

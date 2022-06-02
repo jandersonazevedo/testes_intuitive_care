@@ -10,21 +10,54 @@
     <table>
       <thead>
         <th>Registro ANS</th>
-        <th>Razão Social</th>
         <th>CNPJ</th>
         <th>Nome Fantasia</th>
         <th>Modalidade</th>
+        <th>Telefone</th>
+        <th>E-mail</th>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <tr v-for="op in operadoras" :key="op.id">
+          <td>{{ op.registro_ans }}</td>
+          <td>{{ op.cnpj }}</td>
+          <td>{{ op.nome_fantasia }}</td>
+          <td>{{ op.modalidade }}</td>
+          <td>{{ op.telefone }}</td>
+          <td>{{ op.endereco_eletronico }}</td>
+        </tr>
+      </tbody>
     </table>
+
+    <button @click="carregarArquivo" v-show="operadoras">
+      Restaurar dados iniciais
+    </button>
   </div>
 </template>
 
 <script>
+import api from "@/services/api";
+
 export default {
   name: "Table",
-  props: {
-    title: String,
+  data() {
+    return {
+      title: null,
+      operadoras: null,
+    };
+  },
+  methods: {
+    getOperadoras() {
+      api
+        .get("/operadoras")
+        .then((response) => (this.operadoras = response.data));
+    },
+    carregarArquivo() {
+      api.post("/carregar-arquivo");
+      this.getOperadoras();
+    },
+  },
+  mounted() {
+    this.getOperadoras();
   },
 };
 </script>
@@ -56,12 +89,12 @@ table {
 }
 
 thead {
-    border-bottom: 2px solid #bbb;
+  border-bottom: 2px solid #bbb;
 }
 
 th {
-    padding: 5px;
-    font-size: 15px;
-    color: #333;
+  padding: 5px;
+  font-size: 15px;
+  color: #333;
 }
 </style>
