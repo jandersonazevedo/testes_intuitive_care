@@ -17,9 +17,13 @@
         <input type="submit" value="Pesquisar" class="btn-pesquisar" />
       </form>
     </div>
-    <h1 v-show="loading">Carregando...</h1>
+    <h1 v-show="loading" class="dados-tabela">Carregando...</h1>
     <table>
       <thead>
+        <th @click="ordenar('id')">
+          ID
+          <span v-show="orderBy.coluna == 'id'">{{ setaOrdem }}</span>
+        </th>
         <th @click="ordenar('registro_ans')">
           Registro ANS
           <span v-show="orderBy.coluna == 'registro_ans'">{{ setaOrdem }}</span>
@@ -44,10 +48,10 @@
             setaOrdem
           }}</span>
         </th>
-        <th></th>
       </thead>
-      <tbody v-show="!loading">
+      <tbody v-show="!loading" class="dados-tabela">
         <tr v-for="op in operadoras" :key="op.id">
+          <td>{{ op.id }}</td>
           <td>{{ op.registro_ans }}</td>
           <td>{{ op.cnpj }}</td>
           <td>{{ op.nome_fantasia }}</td>
@@ -71,6 +75,17 @@
         </tr>
       </tbody>
     </table>
+    <div class="paginacao">
+      <label>
+        Limite:
+        <input type="number" min="1" v-model="limite" />
+      </label>
+      <div>
+        <button @click="pagina--" v-show="pagina > 1">Anterior</button>
+        <input type="number" min="1" v-model="pagina" />
+        <button @click="pagina++">Próximo</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,7 +98,10 @@ export default {
     return {
       operadoras: null,
       loading: false,
+      pesquisa: "[null]",
       orderBy: { coluna: "", ordem: "" },
+      pagina: 1,
+      limite: 1,
       setaOrdem: "▼",
     };
   },
@@ -91,7 +109,9 @@ export default {
     async getOperadoras() {
       this.loading = true;
       await api
-        .get(`/operadoras/${this.orderBy.coluna}/${this.orderBy.ordem}`)
+        .get(
+          `/operadoras/${this.pesquisa}/${this.orderBy.coluna}/${this.orderBy.ordem}/${this.pagina}/${this.limite}`
+        )
         .then((response) => (this.operadoras = response.data));
       this.loading = false;
     },
@@ -104,12 +124,10 @@ export default {
 
     async getPesquisa(event) {
       event.preventDefault();
-
-      const pesquisa = event.target.pesquisa.value;
-
-      api.get(`/pesquisar-operadora/${pesquisa}`).then(({ data }) => {
-        this.operadoras = data;
-      });
+      this.pesquisa = event.target.pesquisa.value
+        ? event.target.pesquisa.value
+        : "[null]";
+      this.getOperadoras();
     },
 
     async deletar(id) {
@@ -133,6 +151,14 @@ export default {
     this.orderBy.ordem = "DESC";
     this.getOperadoras();
   },
+  watch: {
+    pagina() {
+      this.getOperadoras();
+    },
+    limite() {
+      this.getOperadoras();
+    },
+  },
 };
 </script>
 
@@ -148,7 +174,7 @@ export default {
 <style scoped>
 .container-table {
   display: grid;
-  grid-template-areas: "h1 div" "table table";
+  grid-template-areas: "h1 div" "table table" "dados dados" "paginacao paginacao";
   column-gap: 12px;
   row-gap: 12px;
 }
@@ -184,6 +210,10 @@ th {
 th:hover {
   color: #000;
   background-color: #eee;
+}
+
+.dados-tabela{
+  grid-area: dados;
 }
 
 tr {
@@ -236,5 +266,12 @@ td {
   justify-content: flex-end;
   column-gap: 10px;
   row-gap: 10px;
+}
+
+.paginacao {
+  grid-area: paginacao;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
 }
 </style>
