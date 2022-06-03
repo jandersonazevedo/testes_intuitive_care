@@ -1,17 +1,29 @@
 import { createRouter, createWebHistory } from "vue-router";
 import OperadorasAtivas from "../views/OperadorasAtivas.vue";
+import DetalhesOperadora from "../views/DetalhesOperadora.vue";
+import CadastrarOperadora from "../views/CadastrarOperadora.vue";
+import EditarOperadora from "../views/EditarOperadora.vue";
 
 const routes = [
   {
     path: "/",
-    name: "OperadorasAtivas",
+    name: "Operadoras",
     component: OperadorasAtivas,
   },
   {
-    path: "/about",
-    name: "about",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/detalhes/:id",
+    name: "detalhes",
+    component: DetalhesOperadora,
+  },
+  {
+    path: "/cadastrar",
+    name: "cadastrar",
+    component: CadastrarOperadora,
+  },
+  {
+    path: "/editar/:id",
+    name: "editar",
+    component: EditarOperadora,
   },
 ];
 

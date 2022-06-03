@@ -14,10 +14,13 @@ export default {
 
 <style scoped>
 #NavBar {
+  position: relative;
+  left: 0px;
+  right: 0px;
+  top: 0px;
   background-color: #fff;
   display: flex;
   justify-content: center;
-  width: 100%;
   padding: 5px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
 }

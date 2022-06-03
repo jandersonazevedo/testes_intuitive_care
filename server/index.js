@@ -1,15 +1,18 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
 const db = require("./src/database/config_db");
 const nameToVar = require("./src/modules/nameToVar");
 
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(cors());
 
 app.get("/operadoras", (req, res) => {
-  const SQL = "SELECT * FROM operadoras_ativas_ans";
+  const SQL = "SELECT * FROM operadoras_ativas_ans LIMIT 10";
 
   db.query(SQL, (err, result) => {
     if (err) res.send(err);
@@ -62,7 +65,7 @@ app.get("/pesquisar-operadora/:pesquisa", (req, res) => {
   LIKE '${p}' OR complemento LIKE '${p}' OR bairro LIKE '${p}' OR cidade 
   LIKE '${p}' OR uf LIKE '${p}' OR cep LIKE '${p}' OR ddd LIKE '${p}' OR telefone 
   LIKE '${p}' OR fax LIKE '${p}' OR endereco_eletronico LIKE '${p}' OR representante 
-  LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}'`;
+  LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}' LIMIT 10`;
 
   db.query(SQL, (err, result) => {
     if (err) res.send(err);
@@ -71,7 +74,7 @@ app.get("/pesquisar-operadora/:pesquisa", (req, res) => {
 });
 
 app.get("/pesquisar-operadora", (req, res) => {
-  const SQL = `SELECT * FROM operadoras_ativas_ans`;
+  const SQL = `SELECT * FROM operadoras_ativas_ans LIMIT 10`;
 
   db.query(SQL, (err, result) => {
     if (err) res.send(err);
@@ -85,6 +88,91 @@ app.delete("/deletar-operadora/:id", (req, res) => {
   db.query(SQL, req.params.id, (err, result) => {
     if (err) res.send(err);
     res.send(JSON.stringify(result));
+  });
+});
+
+app.get("/operadora/:id", (req, res) => {
+  const SQL = "SELECT * FROM operadoras_ativas_ans WHERE id = ?";
+
+  db.query(SQL, req.params.id, (err, result) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(result));
+  });
+});
+
+app.post("/cadastrar-operadora", (req, res) => {
+  const values = Object.values(req.body);
+
+  const keys = Object.keys(req.body);
+
+  const SQL =
+    "INSERT INTO operadoras_ativas_ans (" +
+    keys +
+    ") VALUES (" +
+    "?, ".repeat(keys.length - 1) +
+    "?)";
+
+  db.query(SQL, values, (err, result) => {
+    if (err) throw err;
+
+    res.send(result);
+  });
+});
+
+app.put("/editar-operadora/:id", (req, res) => {
+  const { registro_ans } = req.body;
+  const { cnpj } = req.body;
+  const { razao_social } = req.body;
+  const { nome_fantasia } = req.body;
+  const { modalidade } = req.body;
+  const { logradouro } = req.body;
+  const { numero } = req.body;
+  const { complemento } = req.body;
+  const { bairro } = req.body;
+  const { cidade } = req.body;
+  const { uf } = req.body;
+  const { cep } = req.body;
+  const { ddd } = req.body;
+  const { telefone } = req.body;
+  const { fax } = req.body;
+  const { endereco_eletronico } = req.body;
+  const { representante } = req.body;
+  const { cargo_representante } = req.body;
+  const { data_registro_ans } = req.body;
+
+  const SQL =
+    "UPDATE operadoras_ativas_ans SET registro_ans = ?, cnpj = ?," +
+    " razao_social = ?, nome_fantasia = ?, modalidade = ?, logradouro = ?," +
+    " numero = ?, complemento = ?, bairro = ?, cidade = ?, uf = ?, cep = ?," +
+    " ddd = ?, telefone = ?, fax = ?, endereco_eletronico = ?, representante = ?," +
+    " cargo_representante = ?, data_registro_ans = ? WHERE id = " +
+    req.params.id;
+
+  const binds = [
+    registro_ans,
+    cnpj,
+    razao_social,
+    nome_fantasia,
+    modalidade,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    uf,
+    cep,
+    ddd,
+    telefone,
+    fax,
+    endereco_eletronico,
+    representante,
+    cargo_representante,
+    data_registro_ans,
+  ];
+
+  db.query(SQL, binds, (err, result) => {
+    if (err) throw err;
+    res.send(result);
   });
 });
 
