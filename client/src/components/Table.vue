@@ -20,11 +20,30 @@
     <h1 v-show="loading">Carregando...</h1>
     <table>
       <thead>
-        <th @click="orderBy">Registro ANS</th>
-        <th>CNPJ</th>
-        <th>Nome Fantasia</th>
-        <th>Telefone</th>
-        <th>E-mail</th>
+        <th @click="ordenar('registro_ans')">
+          Registro ANS
+          <span v-show="orderBy.coluna == 'registro_ans'">{{ setaOrdem }}</span>
+        </th>
+        <th @click="ordenar('cnpj')">
+          CNPJ
+          <span v-show="orderBy.coluna == 'cnpj'">{{ setaOrdem }}</span>
+        </th>
+        <th @click="ordenar('nome_fantasia')">
+          Nome Fantasia
+          <span v-show="orderBy.coluna == 'nome_fantasia'">{{
+            setaOrdem
+          }}</span>
+        </th>
+        <th @click="ordenar('telefone')">
+          Telefone
+          <span v-show="orderBy.coluna == 'telefone'">{{ setaOrdem }}</span>
+        </th>
+        <th @click="ordenar('endereco_eletronico')">
+          Endereço eletrônico
+          <span v-show="orderBy.coluna == 'endereco_eletronico'">{{
+            setaOrdem
+          }}</span>
+        </th>
         <th></th>
       </thead>
       <tbody v-show="!loading">
@@ -32,9 +51,11 @@
           <td>{{ op.registro_ans }}</td>
           <td>{{ op.cnpj }}</td>
           <td>{{ op.nome_fantasia }}</td>
-          <td>{{ op.telefone }}</td>
-          <td>{{ op.endereco_eletronico }}</td>
           <td>
+            <span v-show="op.ddd">({{ op.ddd }})</span> {{ op.telefone }}
+          </td>
+          <td>{{ op.endereco_eletronico }}</td>
+          <td style="max-width: 120px">
             <div class="btn-acoes">
               <button @click="deletar(op.id)" class="btn-deletar">
                 Deletar
@@ -62,13 +83,15 @@ export default {
     return {
       operadoras: null,
       loading: false,
+      orderBy: { coluna: "", ordem: "" },
+      setaOrdem: "▼",
     };
   },
   methods: {
     async getOperadoras() {
       this.loading = true;
       await api
-        .get("/operadoras")
+        .get(`/operadoras/${this.orderBy.coluna}/${this.orderBy.ordem}`)
         .then((response) => (this.operadoras = response.data));
       this.loading = false;
     },
@@ -96,11 +119,18 @@ export default {
       }
     },
 
-    orderBy() {
-      console.log(this.operadoras);
+    ordenar(coluna) {
+      this.orderBy.coluna == coluna
+        ? (this.orderBy.ordem = this.orderBy.ordem === "DESC" ? "ASC" : "DESC")
+        : (this.orderBy.ordem = "ASC");
+      this.orderBy.coluna = coluna;
+      this.setaOrdem = this.orderBy.ordem === "ASC" ? "▲" : "▼";
+      this.getOperadoras();
     },
   },
   mounted() {
+    this.orderBy.coluna = "id";
+    this.orderBy.ordem = "DESC";
     this.getOperadoras();
   },
 };

@@ -20,6 +20,17 @@ app.get("/operadoras", (req, res) => {
   });
 });
 
+app.get("/operadoras/:coluna/:ordem", (req, res) => {
+  const coluna = req.params.coluna;
+  const ordem = req.params.ordem;
+  const SQL = `SELECT * FROM operadoras_ativas_ans ORDER BY ${coluna} ${ordem} LIMIT 10`;
+
+  db.query(SQL, (err, result) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(result));
+  });
+});
+
 app.post("/carregar-arquivo", (req, res) => {
   var result = { titulo: "", chaves: [], dados: [] };
 
