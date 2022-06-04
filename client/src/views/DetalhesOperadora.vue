@@ -1,14 +1,14 @@
 <template>
-  <div class="Detalhes Operadora">
-    <div class="container-list">
-      <div class="links-top">
-        <router-link to="/">◄ Voltar</router-link> |
-        <h1 class="table-title">Detalhes da Operadora</h1>
-      </div>
-      <div class="container-detalhes">
-        <div class="categoria">
-          <h1>Dados da operadora</h1>
-          <hr />
+  <div class="container-div">
+    <div class="links-top">
+      <router-link to="/">◄ Voltar</router-link> |
+      <h1 class="table-title">Detalhes da Operadora</h1>
+    </div>
+    <div class="container-detalhes">
+      <div class="categoria">
+        <h2>Dados da operadora</h2>
+        <hr />
+        <div class="container-label">
           <span> <b>Registro ANS: </b> {{ operadora.registro_ans }} </span>
           <span> <b>CNPJ: </b> {{ operadora.cnpj }} </span>
           <span> <b>Razão Social: </b> {{ operadora.razao_social }} </span>
@@ -22,9 +22,11 @@
             <b>Data Registro ANS: </b> {{ operadora.data_registro_ans }}
           </span>
         </div>
-        <div class="categoria">
-          <h1>Endereço</h1>
-          <hr />
+      </div>
+      <div class="categoria">
+        <h2>Endereço</h2>
+        <hr />
+        <div class="container-label">
           <span> <b>Logradouro: </b> {{ operadora.logradouro }} </span>
           <span> <b>Número: </b> {{ operadora.numero }} </span>
           <span> <b>Complemento: </b> {{ operadora.complemento }} </span>
@@ -33,9 +35,11 @@
           <span> <b>UF: </b> {{ operadora.uf }} </span>
           <span> <b>CEP: </b> {{ operadora.cep }} </span>
         </div>
-        <div class="categoria">
-          <h1>Contatos</h1>
-          <hr />
+      </div>
+      <div class="categoria">
+        <h2>Contatos</h2>
+        <hr />
+        <div class="container-label">
           <span> <b>DDD: </b> {{ operadora.ddd }} </span>
           <span> <b>Telefone: </b> {{ operadora.telefone }} </span>
           <span> <b>Fax: </b> {{ operadora.fax }} </span>
@@ -43,6 +47,14 @@
             <b>Endereço eletrônico: </b> {{ operadora.endereco_eletronico }}
           </span>
         </div>
+      </div>
+      <div class="btn-acoes">
+        <button @click="deletar(operadora.id)" class="btn-deletar">
+          Deletar
+        </button>
+        <router-link :to="`/editar/${operadora.id}`" class="btn btn-editar"
+          >Editar</router-link
+        >
       </div>
     </div>
   </div>
@@ -63,7 +75,19 @@ export default {
     async getDadosOperadora() {
       await api
         .get(`/operadora/${this.id}`)
-        .then((response) => (this.operadora = response.data[0]));
+        .then((response) => {
+        if (response.data[0]) {
+          this.operadora = response.data[0];
+        } else {
+          this.$router.push(`/`);
+        }
+      });
+    },
+    async deletar(id) {
+      if (confirm(`Tem certeza que deseja delatar esta operadora?`)) {
+        api.delete(`/deletar-operadora/${id}`);
+        this.$router.push("/");
+      }
     },
   },
   mounted() {
@@ -73,46 +97,50 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .links-top {
-  width: 100%;
   display: flex;
-  row-gap: 10px;
-  column-gap: 10px;
   align-items: center;
+  column-gap: 10px;
+  margin-bottom: 10px;
 }
-h1 {
-  font-size: 17px;
-  font-weight: 500;
-  color: #333;
+
+h2 {
+  font-size: 15px;
 }
 
 hr {
   border: 0;
-  border-top: 0.5px solid #ccc;
+  border-bottom: 1px solid #bbb;
   margin: 5px 0px 10px 0px;
 }
-.categoria {
-  padding: 10px;
-  border-radius: 4px;
-  justify-content: left;
-}
-</style>
 
-<style scoped>
-.container-list {
+.categoria {
+  margin-bottom: 15px;
+  padding: 10px;
+}
+
+.container-label {
   display: flex;
   flex-wrap: wrap;
-  column-gap: 12px;
-  row-gap: 12px;
-  justify-content: center;
+  row-gap: 20px;
+  column-gap: 20px;
 }
 
-
 span {
-  display: block;
-  font-size: 15px;
-  color: #333;
-  margin: 5px 0px;
+  width: 330px;
+  text-align: left;
+  font-size: 14px;
+}
+
+input {
+  width: 180px;
+}
+
+.container-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: right;
+  padding: 10px;
 }
 </style>

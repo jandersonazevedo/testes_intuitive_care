@@ -24,4 +24,14 @@ export default {
   padding: 5px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
 }
+
+a {
+  background-color: transparent;
+  padding: 0;
+  border: 0;
+}
+a:hover {
+  background-color: transparent;
+  border: 0;
+}
 </style>

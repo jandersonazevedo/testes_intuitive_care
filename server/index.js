@@ -11,15 +11,6 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-// app.get("/operadoras", (req, res) => {
-//   const SQL = "SELECT * FROM operadoras_ativas_ans LIMIT 10";
-
-//   db.query(SQL, (err, result) => {
-//     if (err) res.send(err);
-//     res.send(JSON.stringify(result));
-//   });
-// });
-
 app.get("/operadoras/:pesquisa/:coluna/:ordem/:pagina/:limit", (req, res) => {
   const coluna = req.params.coluna;
   const ordem = req.params.ordem;
@@ -30,18 +21,19 @@ app.get("/operadoras/:pesquisa/:coluna/:ordem/:pagina/:limit", (req, res) => {
 
   if (req.params.pesquisa === "[null]") {
     SQL = `SELECT * FROM operadoras_ativas_ans ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${
-      pagina * limit
+      pagina * limit - limit
     }`;
   } else {
     const p = `%${req.params.pesquisa.toLowerCase()}%`;
-    SQL = `SELECT * FROM operadoras_ativas_ans WHERE registro_ans 
+    SQL = `SELECT * FROM operadoras_ativas_ans
+          WHERE registro_ans 
           LIKE '${p}' OR cnpj LIKE '${p}' OR razao_social LIKE '${p}' OR nome_fantasia 
           LIKE '${p}' OR modalidade LIKE '${p}' OR logradouro LIKE '${p}' OR numero 
           LIKE '${p}' OR complemento LIKE '${p}' OR bairro LIKE '${p}' OR cidade 
           LIKE '${p}' OR uf LIKE '${p}' OR cep LIKE '${p}' OR ddd LIKE '${p}' OR telefone 
           LIKE '${p}' OR fax LIKE '${p}' OR endereco_eletronico LIKE '${p}' OR representante 
           LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}'
-          ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${pagina * limit}`;
+          ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${pagina * limit - limit}`;
   }
 
   db.query(SQL, (err, result) => {
@@ -86,31 +78,6 @@ app.delete("/limpar-dados", (req, res) => {
     res.send(JSON.stringify(results));
   });
 });
-
-// app.get("/pesquisar-operadora/:pesquisa", (req, res) => {
-//   const p = `%${req.params.pesquisa.toLowerCase()}%`;
-//   const SQL = `SELECT * FROM operadoras_ativas_ans WHERE registro_ans
-//   LIKE '${p}' OR cnpj LIKE '${p}' OR razao_social LIKE '${p}' OR nome_fantasia
-//   LIKE '${p}' OR modalidade LIKE '${p}' OR logradouro LIKE '${p}' OR numero
-//   LIKE '${p}' OR complemento LIKE '${p}' OR bairro LIKE '${p}' OR cidade
-//   LIKE '${p}' OR uf LIKE '${p}' OR cep LIKE '${p}' OR ddd LIKE '${p}' OR telefone
-//   LIKE '${p}' OR fax LIKE '${p}' OR endereco_eletronico LIKE '${p}' OR representante
-//   LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}' LIMIT 10`;
-
-//   db.query(SQL, (err, result) => {
-//     if (err) res.send(err);
-//     res.send(JSON.stringify(result));
-//   });
-// });
-
-// app.get("/pesquisar-operadora", (req, res) => {
-//   const SQL = `SELECT * FROM operadoras_ativas_ans LIMIT 10`;
-
-//   db.query(SQL, (err, result) => {
-//     if (err) res.send(err);
-//     res.send(JSON.stringify(result));
-//   });
-// });
 
 app.delete("/deletar-operadora/:id", (req, res) => {
   SQL = "DELETE FROM operadoras_ativas_ans WHERE id = ?";
@@ -206,4 +173,4 @@ app.put("/editar-operadora/:id", (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log("Servidor em execução."));
+app.listen(8081, () => console.log("Servidor em execução."));

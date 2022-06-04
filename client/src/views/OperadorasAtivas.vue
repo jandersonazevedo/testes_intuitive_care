@@ -1,8 +1,6 @@
 <template>
-  <div class="OperadorasAtivas">
-    <div class="container-list">
-      <Table/>
-    </div>
+  <div class="container-div">
+    <Table />
   </div>
 </template>
 

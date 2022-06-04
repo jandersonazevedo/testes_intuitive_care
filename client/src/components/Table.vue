@@ -1,90 +1,104 @@
 <template>
   <div class="container-table">
-    <h1 class="table-title">Relação de Operadoras Ativas ANS</h1>
+    <div class="top-container">
+      <h1 class="table-title" onclick="getOperadoras">Relação de Operadoras Ativas ANS</h1>
 
-    <div class="top-buttons">
-      <router-link to="/cadastrar" class="btn">Cadastrar operadora</router-link>
-      <button @click="restaurarDados" v-show="operadoras">
-        Restaurar dados iniciais
-      </button>
-      <form @submit="getPesquisa" class="search-bar">
-        <input
-          type="text"
-          name="pesquisa"
-          placeholder="Digite sua pesquisa aqui"
-          class="campo-pesquisa"
-        />
-        <input type="submit" value="Pesquisar" class="btn-pesquisar" />
-      </form>
+      <div class="top-buttons">
+        <router-link to="/cadastrar" class="btn btn-cadastrar"
+          >Cadastrar operadora</router-link
+        >
+
+        <form @submit="getPesquisa" class="search-bar">
+          <input
+            type="text"
+            name="pesquisa"
+            placeholder="Digite sua pesquisa aqui"
+            class="campo-pesquisa"
+          />
+          <input type="submit" value="Pesquisar" class="btn-pesquisar" />
+        </form>
+      </div>
     </div>
-    <h1 v-show="loading" class="dados-tabela">Carregando...</h1>
-    <table>
-      <thead>
-        <th @click="ordenar('id')">
-          ID
-          <span v-show="orderBy.coluna == 'id'">{{ setaOrdem }}</span>
-        </th>
-        <th @click="ordenar('registro_ans')">
-          Registro ANS
-          <span v-show="orderBy.coluna == 'registro_ans'">{{ setaOrdem }}</span>
-        </th>
-        <th @click="ordenar('cnpj')">
-          CNPJ
-          <span v-show="orderBy.coluna == 'cnpj'">{{ setaOrdem }}</span>
-        </th>
-        <th @click="ordenar('nome_fantasia')">
-          Nome Fantasia
-          <span v-show="orderBy.coluna == 'nome_fantasia'">{{
-            setaOrdem
-          }}</span>
-        </th>
-        <th @click="ordenar('telefone')">
-          Telefone
-          <span v-show="orderBy.coluna == 'telefone'">{{ setaOrdem }}</span>
-        </th>
-        <th @click="ordenar('endereco_eletronico')">
-          Endereço eletrônico
-          <span v-show="orderBy.coluna == 'endereco_eletronico'">{{
-            setaOrdem
-          }}</span>
-        </th>
-      </thead>
-      <tbody v-show="!loading" class="dados-tabela">
-        <tr v-for="op in operadoras" :key="op.id">
-          <td>{{ op.id }}</td>
-          <td>{{ op.registro_ans }}</td>
-          <td>{{ op.cnpj }}</td>
-          <td>{{ op.nome_fantasia }}</td>
-          <td>
-            <span v-show="op.ddd">({{ op.ddd }})</span> {{ op.telefone }}
-          </td>
-          <td>{{ op.endereco_eletronico }}</td>
-          <td style="max-width: 120px">
-            <div class="btn-acoes">
-              <button @click="deletar(op.id)" class="btn-deletar">
-                Deletar
-              </button>
-              <router-link :to="`/editar/${op.id}`" class="btn btn-editar"
-                >Editar</router-link
-              >
-              <router-link :to="`/detalhes/${op.id}`" class="btn btn-detalhes"
-                >Detalhes</router-link
-              >
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="paginacao">
+
+    <div class="table">
+      <table>
+        <thead>
+          <th @click="ordenar('id')">
+            ID
+            <span v-show="orderBy.coluna == 'id'">{{ setaOrdem }}</span>
+          </th>
+          <th @click="ordenar('registro_ans')">
+            Registro ANS
+            <span v-show="orderBy.coluna == 'registro_ans'">{{
+              setaOrdem
+            }}</span>
+          </th>
+          <th @click="ordenar('cnpj')">
+            CNPJ
+            <span v-show="orderBy.coluna == 'cnpj'">{{ setaOrdem }}</span>
+          </th>
+          <th @click="ordenar('nome_fantasia')">
+            Nome Fantasia
+            <span v-show="orderBy.coluna == 'nome_fantasia'">{{
+              setaOrdem
+            }}</span>
+          </th>
+          <th @click="ordenar('endereco_eletronico')">
+            Endereço eletrônico
+            <span v-show="orderBy.coluna == 'endereco_eletronico'">{{
+              setaOrdem
+            }}</span>
+          </th>
+          <th @click="ordenar('telefone')">
+            Telefone
+            <span v-show="orderBy.coluna == 'telefone'">{{ setaOrdem }}</span>
+          </th>
+
+          <th style="cursor: default"></th>
+        </thead>
+        <tbody class="dados-tabela" v-show="!sem_dados">
+          <tr v-for="op in operadoras" :key="op.id">
+            <td class="id">{{ op.id }}</td>
+            <td class="registro_ans">{{ op.registro_ans }}</td>
+            <td class="cnpj">{{ op.cnpj }}</td>
+            <td class="nome_fantasia">{{ op.nome_fantasia }}</td>
+            <td class="endereco_eletronico">{{ op.endereco_eletronico }}</td>
+            <td class="telefone">
+              <span v-show="op.ddd">({{ op.ddd }})</span> {{ op.telefone }}
+            </td>
+            <td class="acoes">
+              <div class="btn-acoes">
+                <button @click="deletar(op.id)" class="btn-deletar">
+                  Deletar
+                </button>
+                <router-link :to="`/editar/${op.id}`" class="btn btn-editar"
+                  >Editar</router-link
+                >
+                <router-link :to="`/detalhes/${op.id}`" class="btn btn-detalhes"
+                  >Detalhes</router-link
+                >
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <h1 v-show="sem_dados" class="sem-dados">Sem dados para exibir.</h1>
+      </table>
+    </div>
+    <div class="bottom-buttons">
       <label>
         Limite:
-        <input type="number" min="1" v-model="limite" />
+        <input type="number" min="1" v-model="limite" class="input-limit" />
       </label>
-      <div>
+      <div class="paginacao">
         <button @click="pagina--" v-show="pagina > 1">Anterior</button>
-        <input type="number" min="1" v-model="pagina" />
+        <input type="number" min="1" v-model="pagina" class="input-pagina" />
         <button @click="pagina++">Próximo</button>
       </div>
+      <select @change="opcoes_de_dados">
+        <option value="">Opções de dados</option>
+        <option value="restaurarDados">Restaurar dados originais</option>
+        <option value="limparDados">Limpar todos os dados</option>
+      </select>
     </div>
   </div>
 </template>
@@ -97,23 +111,23 @@ export default {
   data() {
     return {
       operadoras: null,
-      loading: false,
       pesquisa: "[null]",
       orderBy: { coluna: "", ordem: "" },
       pagina: 1,
-      limite: 1,
+      limite: 15,
       setaOrdem: "▼",
+      sem_dados: false
     };
   },
   methods: {
     async getOperadoras() {
-      this.loading = true;
       await api
         .get(
           `/operadoras/${this.pesquisa}/${this.orderBy.coluna}/${this.orderBy.ordem}/${this.pagina}/${this.limite}`
         )
         .then((response) => (this.operadoras = response.data));
-      this.loading = false;
+
+        this.sem_dados = this.operadoras.length == 0;
     },
 
     async restaurarDados() {
@@ -122,17 +136,25 @@ export default {
       this.getOperadoras();
     },
 
+    async limparDados() {
+      await api.delete("/limpar-dados");
+      this.getOperadoras();
+      this.getOperadoras();
+    },
+
     async getPesquisa(event) {
       event.preventDefault();
       this.pesquisa = event.target.pesquisa.value
         ? event.target.pesquisa.value
         : "[null]";
+      this.pagina = 1;
       this.getOperadoras();
     },
 
     async deletar(id) {
       if (confirm(`Tem certeza que deseja delatar esta operadora?`)) {
         api.delete(`/deletar-operadora/${id}`);
+        this.getOperadoras();
         this.getOperadoras();
       }
     },
@@ -144,6 +166,30 @@ export default {
       this.orderBy.coluna = coluna;
       this.setaOrdem = this.orderBy.ordem === "ASC" ? "▲" : "▼";
       this.getOperadoras();
+    },
+
+    opcoes_de_dados(event) {
+      if (event.target.value == "restaurarDados") {
+        if (
+          confirm(
+            "Atenção! Ao confirmar esta ação, todas as alterações realizadas na tabela serão perdidas. Tem certeza que deseja continuar?"
+          )
+        ) {
+          this.restaurarDados();
+        }
+      }
+
+      if (event.target.value == "limparDados") {
+        if (
+          confirm(
+            "Atenção! Ao confirmar esta ação, apagará todas os dados da tabela. Tem certeza que deseja continuar?"
+          )
+        ) {
+          this.limparDados();
+        }
+      }
+
+      event.target.value = "";
     },
   },
   mounted() {
@@ -162,116 +208,133 @@ export default {
 };
 </script>
 
-<style>
-.table-title {
-  grid-area: h1;
-  font-size: 20px;
-  font-weight: 400;
-  color: #5161f1;
-}
-</style>
-
 <style scoped>
-.container-table {
-  display: grid;
-  grid-template-areas: "h1 div" "table table" "dados dados" "paginacao paginacao";
-  column-gap: 12px;
-  row-gap: 12px;
-}
-
 .top-buttons {
-  grid-area: div;
   display: flex;
-  justify-content: flex-end;
-  column-gap: 10px;
-  row-gap: 10px;
-  max-height: fit-content;
+  column-gap: 20px;
+  justify-content: right;
+  align-items: center;
 }
-
-table {
-  grid-area: table;
-  text-align: left;
-  border-collapse: collapse;
-  width: 100%;
+.btn-cadastrar {
+  background-color: #37923c;
+  border: 1px solid #37923c;
 }
-
-thead {
-  border-bottom: 2px solid #bbb;
-}
-
-th {
-  padding: 5px;
-  font-size: 15px;
-  color: #333;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-th:hover {
-  color: #000;
-  background-color: #eee;
-}
-
-.dados-tabela{
-  grid-area: dados;
-}
-
-tr {
-  transition: 0.1s;
-  cursor: pointer;
-}
-
-tr:hover {
-  background-color: #eee;
-}
-
-td {
-  padding: 10px 5px;
-  font-size: 14px;
-  border-bottom: 1px solid #ddd;
-  word-wrap: wrap;
+.btn-cadastrar:hover {
+  background-color: #29722d;
+  border: 1px solid #29722d;
 }
 
 .campo-pesquisa {
   border-radius: 4px 0px 0px 4px;
-  border: 1px solid #555;
-  background-color: #fdfdfd;
-  padding: 6px 10px;
+}
+
+.campo-pesquisa {
+  border-radius: 4px 0px 0px 4px;
 }
 
 .btn-pesquisar {
-  background-color: #555;
-  border: 1px solid #555;
-  color: #fdfdfd;
-  padding: 6px 5px;
   border-radius: 0px 4px 4px 0px;
+}
+
+.table {
+  overflow: auto;
+  border: 1px solid rgb(200, 200, 200);
+  max-width: 100%;
+  height: calc(100vh - 203px);
+  border-radius: 4px;
+}
+
+table {
+  border-collapse: collapse;
+  padding: 0px 10px;
+  text-align: left;
+  width: 100%;
+  border-spacing: 0px;
+  font-size: 14px;
+  color: #555;
+}
+
+thead {
+  position: sticky;
+  top: 0px;
+  z-index: 10;
+  box-shadow: 0px 0px 2px #555;
+  background-color: #fff;
+}
+
+td {
+  padding: 5px 10px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+th {
+  padding: 10px;
   cursor: pointer;
-  transition: 0.1s;
+  word-wrap: normal;
+  white-space: nowrap;
+  user-select: none;
 }
 
-.search-bar:hover > .campo-pesquisa,
-.search-bar:hover > .btn-pesquisar,
-.campo-pesquisa:focus,
-.btn-pesquisar:focus {
-  border: 1px solid #777;
+th:hover {
+  color: #000;
 }
 
-.search-bar:hover > .btn-pesquisar {
-  background-color: #777;
+tr:nth-child(even) {
+  background: rgb(241, 240, 240);
 }
 
-.btn-acoes {
+.acoes {
+  opacity: 0;
+}
+
+tr:hover {
+  background-color: rgb(214, 221, 235);
+}
+tr:hover > .acoes {
+  opacity: 1;
+}
+
+.id {
+  width: 60px;
+}
+
+.registro_ans,
+.telefone {
+  width: 120px;
+}
+
+.cnpj {
+  width: 130px;
+}
+
+.acoes {
+  width: 200px;
+}
+
+.bottom-buttons {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  column-gap: 10px;
-  row-gap: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.input-limit {
+  width: 70px;
 }
 
 .paginacao {
-  grid-area: paginacao;
-  padding: 10px;
   display: flex;
-  justify-content: center;
+  column-gap: 10px;
+  width: 180px;
+  justify-content: right;
+}
+
+.input-pagina {
+  width: 40px;
+}
+
+.sem-dados{
+  margin: 10px 20px;
+  font-size: 16px;
 }
 </style>
