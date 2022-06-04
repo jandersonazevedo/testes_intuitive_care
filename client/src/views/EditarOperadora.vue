@@ -221,6 +221,7 @@ export default {
         if (response.data[0]) {
           this.operadora = response.data[0];
         } else {
+          //se não encontrar o id que está na url, é redirecionado para tela inicial
           this.$router.push(`/`);
         }
       });
@@ -230,6 +231,7 @@ export default {
 
       const data = this.operadora;
       await api.put(`editar-operadora/${this.id}`, data);
+      //após editar, redireciona para os detalhes da operadora
       this.$router.push(`/detalhes/${this.id}`);
     },
 

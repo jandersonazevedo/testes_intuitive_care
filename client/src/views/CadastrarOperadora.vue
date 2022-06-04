@@ -197,6 +197,7 @@ export default {
   },
   methods: {
     async addOperadora(event) {
+      //Método que faz a inserção dos dados no banco de dados
       event.preventDefault();
 
       const data = this.operadora;
@@ -205,6 +206,7 @@ export default {
     },
 
     handleChangeValues(event) {
+      //Método que atualiza os valores dos inputs no array operadora
       this.operadora = {
         ...this.operadora,
         [event.target.name]: event.target.value,

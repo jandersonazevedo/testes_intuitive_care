@@ -73,12 +73,14 @@ export default {
   },
   methods: {
     async getDadosOperadora() {
+      //Faz a requisição no banco de dados buscar os dados da operadora
       await api
         .get(`/operadora/${this.id}`)
         .then((response) => {
         if (response.data[0]) {
           this.operadora = response.data[0];
         } else {
+          //se não encontrar o id que está na url, é redirecionado para tela inicial
           this.$router.push(`/`);
         }
       });

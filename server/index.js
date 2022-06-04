@@ -11,38 +11,12 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.get("/operadoras/:pesquisa/:coluna/:ordem/:pagina/:limit", (req, res) => {
-  const coluna = req.params.coluna;
-  const ordem = req.params.ordem;
-  const pagina = req.params.pagina;
-  const limit = req.params.limit;
+// ##### ROTAS PARA O CRUD #####
 
-  let SQL = "";
-
-  if (req.params.pesquisa === "[null]") {
-    SQL = `SELECT * FROM operadoras_ativas_ans ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${
-      pagina * limit - limit
-    }`;
-  } else {
-    const p = `%${req.params.pesquisa.toLowerCase()}%`;
-    SQL = `SELECT * FROM operadoras_ativas_ans
-          WHERE registro_ans 
-          LIKE '${p}' OR cnpj LIKE '${p}' OR razao_social LIKE '${p}' OR nome_fantasia 
-          LIKE '${p}' OR modalidade LIKE '${p}' OR logradouro LIKE '${p}' OR numero 
-          LIKE '${p}' OR complemento LIKE '${p}' OR bairro LIKE '${p}' OR cidade 
-          LIKE '${p}' OR uf LIKE '${p}' OR cep LIKE '${p}' OR ddd LIKE '${p}' OR telefone 
-          LIKE '${p}' OR fax LIKE '${p}' OR endereco_eletronico LIKE '${p}' OR representante 
-          LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}'
-          ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${pagina * limit - limit}`;
-  }
-
-  db.query(SQL, (err, result) => {
-    if (err) res.send(err);
-    res.send(JSON.stringify(result));
-  });
-});
+// POST
 
 app.post("/carregar-arquivo", (req, res) => {
+  // Faz a leitura do arquivo Relatorio_cadop.csv, e insere todos os dados no banco de dados
   var result = { titulo: "", chaves: [], dados: [] };
 
   fs.readFile("./src/assets/Relatorio_cadop.csv", "binary", (err, data) => {
@@ -71,32 +45,6 @@ app.post("/carregar-arquivo", (req, res) => {
   });
 });
 
-app.delete("/limpar-dados", (req, res) => {
-  SQL = "TRUNCATE operadoras_ativas_ans";
-  db.query(SQL, (err, results) => {
-    if (err) res.send(err);
-    res.send(JSON.stringify(results));
-  });
-});
-
-app.delete("/deletar-operadora/:id", (req, res) => {
-  SQL = "DELETE FROM operadoras_ativas_ans WHERE id = ?";
-
-  db.query(SQL, req.params.id, (err, result) => {
-    if (err) res.send(err);
-    res.send(JSON.stringify(result));
-  });
-});
-
-app.get("/operadora/:id", (req, res) => {
-  const SQL = "SELECT * FROM operadoras_ativas_ans WHERE id = ?";
-
-  db.query(SQL, req.params.id, (err, result) => {
-    if (err) res.send(err);
-    res.send(JSON.stringify(result));
-  });
-});
-
 app.post("/cadastrar-operadora", (req, res) => {
   const values = Object.values(req.body);
 
@@ -115,6 +63,55 @@ app.post("/cadastrar-operadora", (req, res) => {
     res.send(result);
   });
 });
+
+// GET
+
+app.get("/operadoras/:pesquisa/:coluna/:ordem/:pagina/:limit", (req, res) => {
+  //Rota principal para pegar os dados de todas as operadoras, ou as operadors pesquisadas.
+  const coluna = req.params.coluna;
+  const ordem = req.params.ordem;
+  const pagina = req.params.pagina;
+  const limit = req.params.limit;
+
+  let SQL = "";
+
+  if (req.params.pesquisa === "[null]") {
+    //Se o campo de pesquisa estiver vazio, busca todos as operadoras existentes no banco (sem filtro)
+    SQL = `SELECT * FROM operadoras_ativas_ans ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${
+      pagina * limit - limit
+    }`;
+  } else {
+    const p = `%${req.params.pesquisa.toLowerCase()}%`;
+    SQL = `SELECT * FROM operadoras_ativas_ans
+          WHERE registro_ans 
+          LIKE '${p}' OR cnpj LIKE '${p}' OR razao_social LIKE '${p}' OR nome_fantasia 
+          LIKE '${p}' OR modalidade LIKE '${p}' OR logradouro LIKE '${p}' OR numero 
+          LIKE '${p}' OR complemento LIKE '${p}' OR bairro LIKE '${p}' OR cidade 
+          LIKE '${p}' OR uf LIKE '${p}' OR cep LIKE '${p}' OR ddd LIKE '${p}' OR telefone 
+          LIKE '${p}' OR fax LIKE '${p}' OR endereco_eletronico LIKE '${p}' OR representante 
+          LIKE '${p}' OR cargo_representante LIKE '${p}' OR data_registro_ans LIKE '${p}'
+          ORDER BY ${coluna} ${ordem} LIMIT ${limit} OFFSET ${
+      pagina * limit - limit
+    }`;
+  }
+
+  db.query(SQL, (err, result) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(result));
+  });
+});
+
+app.get("/operadora/:id", (req, res) => {
+  // Faz a busca de uma operadora específica
+  const SQL = "SELECT * FROM operadoras_ativas_ans WHERE id = ?";
+
+  db.query(SQL, req.params.id, (err, result) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(result));
+  });
+});
+
+// PUT
 
 app.put("/editar-operadora/:id", (req, res) => {
   const { registro_ans } = req.body;
@@ -170,6 +167,26 @@ app.put("/editar-operadora/:id", (req, res) => {
   db.query(SQL, binds, (err, result) => {
     if (err) throw err;
     res.send(result);
+  });
+});
+
+// DELETE
+
+app.delete("/limpar-dados", (req, res) => {
+  // Remove todos os dados existente na tabela
+  SQL = "TRUNCATE operadoras_ativas_ans";
+  db.query(SQL, (err, results) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(results));
+  });
+});
+
+app.delete("/deletar-operadora/:id", (req, res) => {
+  SQL = "DELETE FROM operadoras_ativas_ans WHERE id = ?";
+
+  db.query(SQL, req.params.id, (err, result) => {
+    if (err) res.send(err);
+    res.send(JSON.stringify(result));
   });
 });
 
